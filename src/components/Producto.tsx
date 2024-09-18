@@ -1,11 +1,13 @@
+import { Dispatch } from 'react';
 import type { Product } from '../types';
+import { CartActions } from '../reducers/cart-reducer';
 
 type ProductProps = {
   product : Product, 
-  addToCart: (item: Product) => void
+  dispatch: Dispatch<CartActions>
 }
 
-function Product({ product, addToCart } : ProductProps) {
+function Product({ product, dispatch } : ProductProps) {
   const { name, image, price } = product;
 
   return (
@@ -25,7 +27,7 @@ function Product({ product, addToCart } : ProductProps) {
             <div className="flex__botones">
               <a
                 href="#agregarCarrito"
-                onClick={() => addToCart(product)}
+                onClick={() => dispatch({type: 'add-to-cart', payload: {item: product}})}
                 className="producto__btn"
               >
                 <i>

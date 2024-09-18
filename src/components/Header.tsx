@@ -1,15 +1,21 @@
-import type { CartItem, Product } from "../types";
+import { Dispatch, useMemo } from "react";
+import type { CartItem } from "../types";
+import { CartActions } from "../reducers/cart-reducer";
 type HeaderProps = {
   cart: CartItem[]
-  removeFromCart: (id: Product['id']) => void
-  increaseQuantity: (id: Product['id']) => void
-  decreaseQuantity: (id: Product['id']) => void
-  clearCart: () => void
-  isEmpty: boolean
-  cartTotal: number
+  dispatch: Dispatch<CartActions>
 }
 
-function Header({ cart, removeFromCart, increaseQuantity, decreaseQuantity, clearCart, isEmpty, cartTotal } : HeaderProps) {
+function Header({ cart, dispatch } : HeaderProps) {
+  
+    // State Derivado
+    const isEmpty = useMemo(() => cart.length === 0, [cart]);
+
+    const cartTotal = useMemo(
+      () => cart.reduce((total, item) => total + item.quantity * item.price, 0),
+      [cart]
+    );
+  
   return (
     <header className="header">
       <div className="contenedor">
@@ -66,23 +72,23 @@ function Header({ cart, removeFromCart, increaseQuantity, decreaseQuantity, clea
                       </tr>
                     </thead>
                     <tbody>
-                      {cart.map(({ id, name, image, price, quantity }) => (
-                        <tr className="item" key={id}>
+                      {cart.map((product) => (
+                        <tr className="item" key={product.id}>
                           <td>
                             <img
-                              src={`./img/${image}.jpg`}
+                              src={`./img/${product.image}.jpg`}
                               alt="Imagen del producto"
                             />
                           </td>
-                          <td>{name}</td>
-                          <td className="item__precio">{price}</td>
+                          <td>{product.name}</td>
+                          <td className="item__precio">{product.price}</td>
                           <td className="item__cantidad">
-                            <button type="button" onClick={() => decreaseQuantity(id)} className="btn">-</button>
-                            {quantity}
-                            <button type="button" onClick={() => increaseQuantity(id)} className="btn">+</button>
+                            <button type="button" onClick={() => dispatch({type: 'decrease-quantity', payload: {id: product.id}})} className="btn">-</button>
+                            {product.quantity}
+                            <button type="button" onClick={() => dispatch({type: 'increase-quantity', payload: {id: product.id}})} className="btn">+</button>
                             </td>
                           <td>
-                            <button onClick={() => removeFromCart(id)} className="btn item__btn--eliminar">
+                            <button onClick={() => dispatch({type: 'remove-from-cart', payload:{id: product.id}})} className="btn item__btn--eliminar">
                               <i>
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -115,7 +121,7 @@ function Header({ cart, removeFromCart, increaseQuantity, decreaseQuantity, clea
                     </tbody>
                   </table>
                   <p className="carrito__total">Total a pagar: ${cartTotal}</p>
-                  <button onClick={clearCart} className="btn btn__limpiar">
+                  <button onClick={() => dispatch({type: 'clear-cart'})} className="btn btn__limpiar">
                     Vaciar el carrito
                   </button>
                 </>

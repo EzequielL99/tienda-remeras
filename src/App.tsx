@@ -1,30 +1,26 @@
+// Imports
+import { useEffect, useReducer } from "react";
+
+// Reducers
+import { cartReducer, initialState } from "./reducers/cart-reducer";
+
+// Components
 import Header from "./components/Header";
 import Product from "./components/Producto";
-import { useCart } from "./hooks/useCart";
 
 function App() {
-  const {
-    data,
-    cart,
-    addToCart,
-    removeFromCart,
-    decreaseQuantity,
-    increaseQuantity,
-    clearCart,
-    cartTotal,
-    isEmpty,
-  } = useCart();
+
+  const [state, dispatch] = useReducer(cartReducer, initialState);
+
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(state!.cart))
+  }, [state!.cart])
 
   return (
     <>
       <Header
-        cart={cart}
-        removeFromCart={removeFromCart}
-        increaseQuantity={increaseQuantity}
-        decreaseQuantity={decreaseQuantity}
-        clearCart={clearCart}
-        isEmpty={isEmpty}
-        cartTotal={cartTotal}
+        cart={state!.cart}
+        dispatch={dispatch}
       />
 
       <main>
@@ -82,11 +78,11 @@ function App() {
           </div>
 
           <div className="contenedor productos__grid">
-            {data.map((product) => (
+            {state?.data.map((product) => (
               <Product
                 key={product.id}
                 product={product}
-                addToCart={addToCart}
+                dispatch={dispatch}
               />
             ))}
           </div>
